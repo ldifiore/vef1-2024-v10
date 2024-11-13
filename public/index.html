@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <link rel="stylesheet" href="../src/App.css">
+
+    <title>React App</title>
+  </head>
+
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+
+    <div class="simSpace" id="simSpace">
+
+      <canvas id="canvas"></canvas>
+      
+    </div>
+
+
+    <div id="root"></div>
+
+
+  <script src = "../src/basics/Vector2.js"></script>
+  <script src = "../src/basics/DrawUtillsMeter.js"></script>
+  <script src = "../src/particle.js"></script>
+  <script src = "../src/main.js"></script>
+
+
+  <script type="module">
+
+  import Vector2 from "../src/basics/Vector2";
+  import { ADD } from "../src/basics/Vector2";
+  import { SUB } from "../src/basics/Vector2";
+  import { SCALE } from "../src/basics/Vector2";
+  import DrawUtillsMeter from "../src/basics/DrawUtillsMeter";
+  import Particle from "../src/particle";
+  import Sim from "../src/main";
+
+
+      
+//  GET WHEEL POSITION
+      canvas.addEventListener("wheel" , function(evt){
+          evt.preventDefault();
+          Global.deltaWheel = evt.deltaY/1000;
+          Global.wheelPos += Global.deltaWheel;
+          Global.zoom = Math.pow(10,Global.wheelPos);
+      })
+
+//  GET MOUSE BOTTONS
+//  MOUSE DOWN
+      addEventListener('mousedown',function(evt){
+
+          evt.preventDefault();
+
+          Global.mouseButtons[evt.button] = 1;
+
+          if (evt.button == 1){
+            Global.wheelDragStartPosition[0] = Global.mousePosition[0];
+            Global.wheelDragStartPosition[1] = Global.mousePosition[1];
+          }
+
+      });
+
+//  MOUSE UP
+      addEventListener('mouseup',function(evt){
+
+          evt.preventDefault();
+
+          Global.mouseButtons[evt.button] = 0;
+
+          Global.lastWheelDragDelta[0] += Global.wheelDragDelta[0] 
+          Global.lastWheelDragDelta[1] += Global.wheelDragDelta[1] 
+
+
+      });
+
+      //  GET MOUSE POSITION
+      canvas.addEventListener('mousemove',function(evt){
+          var rect = Global.canvas.getBoundingClientRect();
+          Global.mousePosition = [evt.clientX - rect.left,evt.clientY - rect.top + 1];
+          //console.log(mousePosition);
+
+          if (Global.mouseButtons[1]){
+            Global.wheelDragDelta[0] = Global.mousePosition[0] - Global.wheelDragStartPosition[0];
+            Global.wheelDragDelta[1] = Global.mousePosition[1] - Global.wheelDragStartPosition[1];
+
+            Global.totalWheelDragDelta[0] = Global.wheelDragDelta[0] + Global.lastWheelDragDelta[0];
+            Global.totalWheelDragDelta[1] = Global.wheelDragDelta[1] + Global.lastWheelDragDelta[1];
+
+          };
+
+      });
+
+//  MAIN LOOP            
+      function MainLoop(){
+          Sim.Update();
+          window.requestAnimationFrame(MainLoop);
+      }
+
+      Sim.init();
+
+      Sim.InitSimulation();
+
+      MainLoop();
+  </script>
+  </body>
+
+  
+</html>
